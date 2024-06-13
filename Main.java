@@ -108,20 +108,42 @@ public class Main {
         } else {
             System.out.println("---------------------------------------------------------------------------------------------------");
             System.out.printf("| %-12s | %-10s | %-15s | %-10s | %-15s | %-10s |%n", 
-                    "Kode Transaksi", "Lama Pinjam", "Nama Peminjam", "Total Biaya", "No TNKB", "Status");
+                    "Kode Transaksi", "Lama Pinjam", "Nama Peminjam", "Total Biaya", "No TNKB", "Diskon (%)");
             System.out.println("---------------------------------------------------------------------------------------------------");
 
+            double totalPendapatan = 0;
             for (TransaksiRental transaksi : daftarTransaksi) {
-                tampilkanTransaksi(transaksi);
+                double biayaAsli = transaksi.getTotalBiaya();
+                double diskon = hitungDiskon(transaksi.getLamaPinjam());
+                double biayaAkhir = biayaAsli * (1 - diskon);
+                totalPendapatan += biayaAkhir;
+
+                tampilkanTransaksi(transaksi, biayaAsli, diskon, biayaAkhir);
             }
+
             System.out.println("---------------------------------------------------------------------------------------------------");
+            System.out.printf("Total Pendapatan Hari Ini: %.2f%n", totalPendapatan);
         }
     }
 
     private static void tampilkanTransaksi(TransaksiRental transaksi) {
+        tampilkanTransaksi(transaksi, transaksi.getTotalBiaya(), 0, transaksi.getTotalBiaya());
+    }
+
+    private static void tampilkanTransaksi(TransaksiRental transaksi, double biayaAsli, double diskon, double biayaAkhir) {
         System.out.printf("| %-12d | %-10d | %-15s | %-10.2f | %-15s | %-10s |%n", 
                 transaksi.getKodeTransaksi(), transaksi.getLamaPinjam(), transaksi.getNamaPeminjam(), 
-                transaksi.getTotalBiaya(), transaksi.getNoTNKB(), "Completed");
+                biayaAkhir, transaksi.getNoTNKB(), String.format("%.0f", diskon * 100));
+    }
+
+    private static double hitungDiskon(int lamaPinjam) {
+        if (lamaPinjam > 78) {
+            return 0.20; // Diskon 20%
+        } else if (lamaPinjam > 48) {
+            return 0.10; // Diskon 10%
+        } else {
+            return 0.0;  // Tidak ada diskon
+        }
     }
 
     private static void urutkanTransaksiNoTNKB() {
